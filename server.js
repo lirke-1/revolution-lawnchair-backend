@@ -33,6 +33,8 @@ app.get('/api/profile', (req, res) => {
 })*/
 
 app.post('/api/greet', (req, res) => {
+    console.log(`Request Received: ${req}`)
+    /*
     const userInput = req.body.name;
     if (!userInput) {
         return res.status(400).json({ error: "ProfileID is required" });
@@ -45,6 +47,7 @@ app.post('/api/greet', (req, res) => {
         sanitized: sanitizedName,
         message: `Hello, ${allowedInput}!` 
     });
+    */
 })
 
 // Start the Server
