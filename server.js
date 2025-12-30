@@ -3,11 +3,15 @@ const validator = require('validator'); //Validator library for string sanitatio
 const app = express();
 const PORT = 3000;
 
+// Middleware
+// This line tells Express to read the "body" of the request (JSON)
+// If this is missing or below the routes, req.body will be undefined.
+app.use(express.json());
 // This tells Express to serve the files in the 'public' folder
 // (HTML, CSS, JS) as if they were a normal website.
 app.use(express.static('public'));
 
-// API Endpoint
+// Routes
 // When the frontend requests '/api/message', we run this function.
 app.get('/api/message', (req, res) => {
     const messages = [
@@ -33,21 +37,20 @@ app.get('/api/profile', (req, res) => {
 })*/
 
 app.post('/api/greet', (req, res) => {
-    console.log(`Request Received: ${req}`)
-    /*
-    const userInput = req.body.name;
-    if (!userInput) {
-        return res.status(400).json({ error: "ProfileID is required" });
+    var userInput = '';
+    try{
+        userInput = req.body.name;
+    } catch(e){
+        console.error(e)
     }
-    const sanitizedInput = validator.escape(userInput.trim());
-    const allowedInput = validator.whitelist(sanitizedInput,'^[a-zA-Z0-9_-]*$') //RegExp for Most Chars
-    console.log(`Input received: ${allowedInput}`)
-    res.json({ 
-        original: userInput,
-        sanitized: sanitizedName,
-        message: `Hello, ${allowedInput}!` 
-    });
-    */
+
+    if (!userInput) {
+        return res.status(400).json({ error: "Name is required" });
+        //return res.status(400).json({ error: "ProfileID is required" });
+    }
+    const sanitizedInput = validator.whitelist(validator.escape(userInput.trim()),'^[a-zA-Z0-9_-]*$') //RegExp for Most Chars
+    //DEBUG console.log(`Input received: ${sanitizedInput}`)
+    res.json({message:sanitizedInput}); //Response
 })
 
 // Start the Server

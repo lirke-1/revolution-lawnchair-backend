@@ -19,10 +19,8 @@ sendButton.addEventListener('click', async () => {
     // Send data to server
     const response = await fetch('/api/greet', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: nameText })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name:nameText})
     });
 
     const data = await response.json();
@@ -30,7 +28,6 @@ sendButton.addEventListener('click', async () => {
     // Display result
     // We show the 'sanitized' version to prove it cleaned up special chars
     inputResponse.innerHTML = `
-        Server says: <b>${data.message}</b><br>
-        (Sanitized: ${data.sanitized})
+        Server says: <b>Hello, ${data.message}</b><br>
     `;
 });
