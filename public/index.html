@@ -3,17 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My First Server</title>
+    <title>Revolution Lawnchair</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>Node.js & Express Demo</h1>
-        <p>Click the button to get a message from the server.</p>
+        
+        <!-- Section 1: Random Message -->
+        <div class="section">
+            <h3>Random Message</h3>
+            <button id="msgButton">Get Message</button>
+            <p id="msg-response">Waiting...</p>
+        </div>
 
-        <button id="myButton">Get Message</button>
+        <hr>
 
-        <p id="response-area">Waiting...</p>
+        <!-- Section 2: User Input -->
+        <div class="section">
+            <h3>Send Your Name</h3>
+            <!-- Try typing: <script>alert('hack')</script> -->
+            <input type="text" id="nameInput" placeholder="Enter your name">
+            <button id="sendButton">Send to Server</button>
+            <p id="input-response">Waiting...</p>
+        </div>
     </div>
 
     <script src="client.js"></script>
