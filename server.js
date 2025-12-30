@@ -39,6 +39,7 @@ app.post('/api/greet', (req, res) => {
     }
     const sanitizedInput = validator.escape(userInput.trim());
     const allowedInput = validator.whitelist(sanitizedInput,'^[a-zA-Z0-9_-]*$') //RegExp for Most Chars
+    console.log('Input received: ${allowedInput}')
     res.json({message: 'Hello, ${allowedInput}!'});
 })
 

@@ -1,13 +1,36 @@
-const button = document.getElementById('myButton');
-const responseArea = document.getElementById('response-area');
+// Message Button
+const msgButton = document.getElementById('msgButton');
+const msgResponse = document.getElementById('msg-response');
 
-button.addEventListener('click', async () => {
-    // 1. Call the API we created in server.js
+msgButton.addEventListener('click', async () => {
     const response = await fetch('/api/message');
-
-    // 2. Convert the response to JSON
     const data = await response.json();
+    msgResponse.innerText = data.text;
+});
 
-    // 3. Update the HTML with the data
-    responseArea.innerText = data.text;
+// User Input
+const sendButton = document.getElementById('sendButton');
+const nameInput = document.getElementById('nameInput');
+const inputResponse = document.getElementById('input-response');
+
+sendButton.addEventListener('click', async () => {
+    const nameText = nameInput.value;
+
+    // Send data to server
+    const response = await fetch('/api/greet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: nameText })
+    });
+
+    const data = await response.json();
+    
+    // Display result
+    // We show the 'sanitized' version to prove it cleaned up special chars
+    inputResponse.innerHTML = `
+        Server says: <b>${data.message}</b><br>
+        (Sanitized: ${data.sanitized})
+    `;
 });
