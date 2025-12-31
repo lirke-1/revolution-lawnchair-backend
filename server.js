@@ -10,7 +10,7 @@ const crypto = require('crypto'); //Crypto module
 const app = express();
 const PORT = 3000;
 // This creates a file named 'database.db' in your project folder
-const db = new sqlite3.Database('./database.db', (err) => {
+const db = new sqlite3.Database(process.env.DB_PATH, (err) => {
     if (err) {
         console.error("Error opening database " + err.message);
     } else {
@@ -81,13 +81,18 @@ app.get('/api/names', (req, res) => {
 // POST (Register User)
 app.post('/api/register', async (req, res) => {
     const { name, password } = req.body;
-    
+    if (!name || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+    }
+    const timestamp = new Date().toISOString();
+    const sanitizedName = validator.whitelist(validator.escape(name.trim()),'^[a-zA-Z0-9_-]*$');
+    const sanitizedPass = validator.whitelist(validator.escape(password.trim()),'^[a-zA-Z0-9_-]*$');
     try {
         // HASH: Generates an Argon2id hash with a random salt automatically.
         // The resulting string looks like: $argon2id$v=19$m=65536,t=3,p=4$SALT$HASH
-        const hash = await argon2.hash(password);
+        const hash = await argon2.hash(sanitizedPass);
 
-        db.run("INSERT INTO users (username, password_hash) VALUES (?, ?)", [name, hash], (err) => {
+        db.run("INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, ?)", [sanitizedName, hash, timestamp], (err) => {
             if (err) return res.status(500).json({ error: "Could not register user" });
             res.json({ success: true });
         });
@@ -104,8 +109,10 @@ app.post('/api/login', (req, res) => {
     if (!name || !password) {
         return res.status(400).json({ error: "Username and password are required" });
     }
+    const sanitizedName = validator.whitelist(validator.escape(name.trim()),'^[a-zA-Z0-9_-]*$');
+    const sanitizedPass = validator.whitelist(validator.escape(password.trim()),'^[a-zA-Z0-9_-]*$');
 
-    db.get("SELECT * FROM users WHERE username = ?", [name], async (err, user) => {
+    db.get("SELECT * FROM users WHERE username = ?", [sanitizedName], async (err, user) => {
         if (err) return res.status(500).json({ error: "Internal server error" });
         
         // Generic error to prevent username enumeration
@@ -114,7 +121,7 @@ app.post('/api/login', (req, res) => {
         try {
             // VERIFY: Argon2 verify checks the password against the hash.
             // It automatically extracts the salt and parameters from the stored hash string.
-            const validPassword = await argon2.verify(user.password_hash, password);
+            const validPassword = await argon2.verify(user.password_hash, sanitizedPass);
 
             if (validPassword) {
                 // SESSION: Store user ID in the session
