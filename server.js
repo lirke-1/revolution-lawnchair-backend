@@ -24,12 +24,6 @@ const db = new sqlite3.Database('./database.db', (err) => {
             created_at TEXT,
             data_hash TEXT
         )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS sessions (
-            id TEXT PRIMARY KEY,
-            created_at TEXT,
-            data_hash TEXT
-        )`);
     }
 });
 
