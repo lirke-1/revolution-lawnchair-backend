@@ -1,4 +1,8 @@
+require('dotenv').config();
+
 const express = require('express'); // Express HTTP API
+const session = require('express-session');
+const argon2 = require('argon2');
 const validator = require('validator'); //Validator library for string sanitation
 const sqlite3 = require('sqlite3').verbose(); // Import SQLite
 const crypto = require('crypto'); //Crypto module
@@ -20,6 +24,12 @@ const db = new sqlite3.Database('./database.db', (err) => {
             created_at TEXT,
             data_hash TEXT
         )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS sessions (
+            id TEXT PRIMARY KEY,
+            created_at TEXT,
+            data_hash TEXT
+        )`);
     }
 });
 
@@ -27,11 +37,33 @@ const db = new sqlite3.Database('./database.db', (err) => {
 // Middleware
 app.use(express.json()); // If this is missing or below the routes, req.body will be undefined.
 app.use(express.static('public')); // This tells Express to serve the files in the 'public' folder as if they were a normal website.
+app.use(session({
+    secret: process.env.SESSION_SECRET, // Reads from .env
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        // 3. Use NODE_ENV to determine if we are in production
+        secure: process.env.NODE_ENV === 'production', 
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 
+    }
+}));
+
 
 // Routes
+
+/* TODO
+
+- /api/register should require some kind of verification to prevent the mass creation of user accounts.
+- /api/login should log the latest date of login.\
+- /api/login should store a session token that can be exchanged for information within 15-20 minutes of its creation.
+- /api/me should 
+
+*/
+
 /*
 //Request profile information via API
-app.get('/api/profile', (req, res) => {
+app.get('/api/me', (req, res) => {
     const userInput = req.body.name;
     if (!userInput) {
         return res.status(400).json({ error: "ProfileID is required" });
@@ -55,49 +87,53 @@ app.get('/api/names', (req, res) => {
 // POST (Register User)
 app.post('/api/register', async (req, res) => {
     const { name, password } = req.body;
+    
+    try {
+        // HASH: Generates an Argon2id hash with a random salt automatically.
+        // The resulting string looks like: $argon2id$v=19$m=65536,t=3,p=4$SALT$HASH
+        const hash = await argon2.hash(password);
 
-    if (!name || !password) {
-        return res.status(400).json({ error: "Name and Password are required" });
-    }
-    const sanitizedName = validator.whitelist(validator.escape(name.trim()),'^[a-zA-Z0-9_-]*$');
-    const sanitizedPass = validator.whitelist(validator.escape(password.trim()),'^[a-zA-Z0-9_-]*$');
-    const timestamp = new Date().toISOString();
-
-    // Hash the Password
-    const hashedPassword = crypto.createHash('sha256').update(sanitizedName + sanitizedPass + timestamp).digest('hex');
-
-    // Create the integrity hash (Name + Time) - we don't include password here usually
-    const integrityHash = crypto.createHash('sha256').update(sanitizedName + timestamp).digest('hex');
-
-    const sql = "INSERT INTO users (username, password_hash, created_at, data_hash) VALUES (?, ?, ?, ?)";
-    const params = [sanitizedName, hashedPassword, timestamp, integrityHash];
-
-    db.run(sql, params, function (err) {
-        if (err) return res.status(400).json({ error: err.message });
-        
-        res.json({ 
-            message: `User ${sanitizedName} registered!`,
-            id: this.lastID
+        db.run("INSERT INTO users (username, password_hash) VALUES (?, ?)", [name, hash], (err) => {
+            if (err) return res.status(500).json({ error: "Could not register user" });
+            res.json({ success: true });
         });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Error hashing password" });
+    }
 });
 
+
+// POST (Login User)
 app.post('/api/login', (req, res) => {
     const { name, password } = req.body;
-    
-    // Find the user by name
-    db.get("SELECT * FROM users WHERE username = ?", [name], async (err, user) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!user) return res.status(400).json({ error: "User not found" });
 
-        const sanitizedName = validator.whitelist(validator.escape(name.trim()),'^[a-zA-Z0-9_-]*$');
-        const sanitizedPass = validator.whitelist(validator.escape(password.trim()),'^[a-zA-Z0-9_-]*$');
-        // Compare the plain password with the stored hash
-        const match = crypto.createHash('sha256').update(sanitizedName + sanitizedPass + user.created_at).digest('hex');
-        if (match == user.password_hash){
-            res.json({ success: true, message: "Login Successful! Welcome back." });
-        } else {
-            res.json({ success: false, message: "Invalid Password." });
+    if (!name || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+    }
+
+    db.get("SELECT * FROM users WHERE username = ?", [name], async (err, user) => {
+        if (err) return res.status(500).json({ error: "Internal server error" });
+        
+        // Generic error to prevent username enumeration
+        if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+        try {
+            // VERIFY: Argon2 verify checks the password against the hash.
+            // It automatically extracts the salt and parameters from the stored hash string.
+            const validPassword = await argon2.verify(user.password_hash, password);
+
+            if (validPassword) {
+                // SESSION: Store user ID in the session
+                req.session.userId = user.id;
+                req.session.username = user.username;
+
+                return res.json({ success: true, message: "Login Successful!" });
+            } else {
+                return res.status(401).json({ error: "Invalid credentials" });
+            }
+        } catch (e) {
+            // Internal error (e.g., hash format was wrong)
+            return res.status(500).json({ error: "Error processing login" });
         }
     });
 });
