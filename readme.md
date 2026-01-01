@@ -52,9 +52,7 @@ git clone https://github.com/theonlycasper/revolution-lawnchair-backend.git
 cd ./revolution-lawnchair-backend
 ```
 
-**2. Prepare the root folder for Docker Compose:**
-Prepare the data folder besides the app folder.
-Copy the example compose.yaml out of the docker folder.
+**2. Prepare the data folder and copy compose.yaml to root for Docker Compose:**
 ```bash
 mkdir data
 cp ./docker/compose-example.yaml ./compose.yaml
@@ -64,6 +62,7 @@ cp ./docker/compose-example.yaml ./compose.yaml
 ```bash
 docker compose up --build -d
 ```
+You may choose to change variables and ports inside the compose file.
 
 ## Docker Run
 **1. Clone this repo:**
