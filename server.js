@@ -91,10 +91,14 @@ app.post('/api/register', async (req, res) => {
         // HASH: Generates an Argon2id hash with a random salt automatically.
         // The resulting string looks like: $argon2id$v=19$m=65536,t=3,p=4$SALT$HASH
         const hash = await argon2.hash(sanitizedPass);
-
-        db.run("INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, ?)", [sanitizedName, hash, timestamp], (err) => {
+        const integrityHash = crypto.createHash('sha256').update(sanitizedName + hash + timestamp).digest('hex');
+        db.run("INSERT INTO users (username, password_hash, created_at, data_hash) VALUES (?, ?, ?, ?)", [sanitizedName, hash, timestamp, integrityHash], (err) => {
             if (err) return res.status(500).json({ error: "Could not register user" });
-            res.json({ success: true });
+            res.json({ success: true, 
+                message: `User ${sanitizedName} registered!`,
+                id: this.lastID,
+                created_at: timestamp
+             });
         });
     } catch (err) {
         res.status(500).json({ error: "Error hashing password" });
