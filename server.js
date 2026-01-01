@@ -22,6 +22,7 @@ const db = new sqlite3.Database(process.env.DB_PATH, (err) => {
             username TEXT,
             password_hash TEXT,
             created_at TEXT,
+            last_login TEXT,
             data_hash TEXT
         )`);
     }
@@ -49,7 +50,7 @@ app.use(session({
 /* TODO
 
 - /api/register should require some kind of verification to prevent the mass creation of user accounts.
-- /api/login should log the latest date of login.\
+- /api/login should log the latest date of login.
 - /api/login should store a session token that can be exchanged for information within 15-20 minutes of its creation.
 - /api/me should 
 
@@ -92,7 +93,7 @@ app.post('/api/register', async (req, res) => {
         // The resulting string looks like: $argon2id$v=19$m=65536,t=3,p=4$SALT$HASH
         const hash = await argon2.hash(sanitizedPass);
         const integrityHash = crypto.createHash('sha256').update(sanitizedName + hash + timestamp).digest('hex');
-        db.run("INSERT INTO users (username, password_hash, created_at, data_hash) VALUES (?, ?, ?, ?)", [sanitizedName, hash, timestamp, integrityHash], (err) => {
+        db.run("INSERT INTO users (username, password_hash, created_at, last_login, data_hash) VALUES (?, ?, ?, ?, ?)", [sanitizedName, hash, timestamp, timestamp, integrityHash], (err) => {
             if (err) return res.status(500).json({ error: "Could not register user" });
             res.json({ success: true, 
                 message: `User ${sanitizedName} registered!`,

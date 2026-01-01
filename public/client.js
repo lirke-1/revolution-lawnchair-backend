@@ -56,8 +56,6 @@ async function loadUsers() {
 
     result.data.forEach(user => {
         const li = document.createElement('li');
-        // NOTE: We do NOT send the password hash to the frontend.
-        // It's a security best practice to keep hashes on the server only.
         li.innerHTML = `
             <strong>${user.username}</strong> <br>
             <small>Joined: ${new Date(user.created_at).toLocaleString()}</small>
