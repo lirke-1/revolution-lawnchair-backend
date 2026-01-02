@@ -44,7 +44,7 @@ This project includes a Dockerfile utilizing Alpine Linux.
 ## Docker Compose
 **1. Clone this repo:**
 ```bash
-git clone https://github.com/theonlycasper/revolution-lawnchair-backend.git
+git clone https://github.com/lirke-1/revolution-lawnchair-backend.git
 cd ./revolution-lawnchair-backend
 ```
 
