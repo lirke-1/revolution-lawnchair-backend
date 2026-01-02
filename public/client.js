@@ -41,7 +41,7 @@ btnLogin.addEventListener('click', async () => {
     if (data.success) {
         loginResponse.style.color = "green";
         loginResponse.innerText = "✅ " + data.message;
-        loadUsers();
+        loadUserProfile();
     } else {
         loginResponse.style.color = "red";
         loginResponse.innerText = "❌ " + (data.message || data.error);
@@ -50,26 +50,9 @@ btnLogin.addEventListener('click', async () => {
 
 // --- 3. Load Users ---
 btnLoad.addEventListener('click', async () => {
-    loadUsers();
+    loadUserProfile();
 });
 
-async function loadUsers() {
-    const response = await fetch('/api/me');
-    const result = await response.json();
-    userList.innerHTML = '';
-
-    result.data.forEach(user => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <strong>${user.username}</strong> <br>
-            <small>Joined: ${new Date(user.created_at).toLocaleString()}</small>
-        `;
-        li.style.borderBottom = "1px solid #ddd";
-        li.style.marginBottom = "5px";
-        userList.appendChild(li);
-    });
-}
-/*
 async function loadUserProfile() {
     // 1. Change the endpoint to one that returns the CURRENT user's info.
     // The backend should determine who this is based on the session cookie or token.
@@ -83,19 +66,14 @@ async function loadUserProfile() {
     }
 
     const result = await response.json();
-    
-    // 2. No loop needed. We assume 'result' is the user object itself.
-    // (If your API wraps it, you might need 'const user = result.data')
-    const user = result; 
-
+    const user = result.data; 
     userList.innerHTML = '';
 
     // 3. Create a container for the single user (e.g., a div instead of li)
     const profileCard = document.createElement('div');
     
-    // Security Note: Ensure your API still does not send the password hash!
     profileCard.innerHTML = `
-        <h3>Welcome, ${user.username}</h3>
+        <h3>Welcome, ${user.display_name}</h3>
         <p>Member since: ${new Date(user.created_at).toLocaleDateString()}</p>
     `;
     
@@ -106,4 +84,3 @@ async function loadUserProfile() {
 
     userList.appendChild(profileCard);
 }
-*/
