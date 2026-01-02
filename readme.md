@@ -130,6 +130,7 @@ docker run -p 3000:3000 --env-file .env revolution
     "password": "newPassword123"
   }
 - **Body (Update Display Name):**
+  ```json
   {
     "changetype": "displayname",
     "display_name": "Cool Alias"
@@ -137,7 +138,6 @@ docker run -p 3000:3000 --env-file .env revolution
 
 ### Admin Routes
 
-```markdown
 ### 5. Get User Details (Admin)
 - **URL:** `/api/admin/user/:username`
 - **Method:** `GET`
