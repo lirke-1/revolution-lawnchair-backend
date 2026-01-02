@@ -113,6 +113,54 @@ docker run -p 3000:3000 --env-file .env revolution
   ```
 - **Response:** Sets a `connect.sid` cookie upon success.
 
+### 3. Get Current User
+- **URL:** `/api/me`
+- **Method:** `GET`
+- **Auth Required:** Yes
+- **Response:** Returns the profile data (display name, created date, status) for the currently logged-in user.
+
+### 4. Update Profile
+- **URL:** `/api/me/update`
+- **Method:** `POST`
+- **Auth Required:** Yes
+- **Body (Update Password):**
+  ```json
+  {
+    "changetype": "password",
+    "password": "newPassword123"
+  }
+- **Body (Update Display Name):**
+  {
+    "changetype": "displayname",
+    "display_name": "Cool Alias"
+  }
+
+### Admin Routes
+
+```markdown
+### 5. Get User Details (Admin)
+- **URL:** `/api/admin/user/:username`
+- **Method:** `GET`
+- **Auth Required:** Yes (Admin Status)
+- **Description:** Fetches raw status and details for a specific user to populate the admin editor.
+
+### 6. Update User Status (Admin)
+- **URL:** `/api/update`
+- **Method:** `POST`
+- **Auth Required:** Yes (Admin Status)
+- **Description:** Updates the target user's status string and recalculates their integrity hash.
+- **Body:**
+  ```json
+  {
+    "target_username": "targetUser",
+    "new_status": {
+        "status": "ACTIVE",
+        "admin": true,
+        "vip": false,
+        "verified": true
+    }
+  }
+
 ## License
 
 Free Use
