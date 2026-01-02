@@ -89,7 +89,6 @@ docker run -p 3000:3000 --env-file .env revolution
 ```
 
 ## API Endpoints
-
 ### 1. Register User
 - **URL:** `/api/register`
 - **Method:** `POST`
@@ -100,7 +99,6 @@ docker run -p 3000:3000 --env-file .env revolution
     "password": "mySecretPassword"
   }
   ```
-
 ### 2. Login User
 - **URL:** `/api/login`
 - **Method:** `POST`
@@ -112,13 +110,11 @@ docker run -p 3000:3000 --env-file .env revolution
   }
   ```
 - **Response:** Sets a `connect.sid` cookie upon success.
-
 ### 3. Get Current User
 - **URL:** `/api/me`
 - **Method:** `GET`
 - **Auth Required:** Yes
 - **Response:** Returns the profile data (display name, created date, status) for the currently logged-in user.
-
 ### 4. Update Profile
 - **URL:** `/api/me/update`
 - **Method:** `POST`
@@ -135,15 +131,11 @@ docker run -p 3000:3000 --env-file .env revolution
     "changetype": "displayname",
     "display_name": "Cool Alias"
   }
-
-### Admin Routes
-
 ### 5. Get User Details (Admin)
 - **URL:** `/api/admin/user/:username`
 - **Method:** `GET`
 - **Auth Required:** Yes (Admin Status)
 - **Description:** Fetches raw status and details for a specific user to populate the admin editor.
-
 ### 6. Update User Status (Admin)
 - **URL:** `/api/update`
 - **Method:** `POST`
@@ -161,5 +153,4 @@ docker run -p 3000:3000 --env-file .env revolution
     }
   }
 ## License
-
 Free Use
