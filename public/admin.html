@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Revolution Lawnchair</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .status-editor {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .warning {
+            color: #d9534f;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="flex-container">
+            <h1>Admin Panel</h1>
+        </div>
+        <div>
+            <a href="/" style="margin-top: 20px;">&larr; Back to Home</a>
+        </div>
+        <!-- 1. Search User -->
+        <div class="section">
+            <h3>Find User</h3>
+            <div class="flex-container">
+                <div class="flex-column">
+                    <input type="text" id="searchTarget" placeholder="Enter Username to Edit">
+                </div>
+                <div class="flex-column">
+                    <button id="btnSearch">Search DB</button>
+                </div>
+            </div>
+            <p id="searchResponse"></p>
+        </div>
+
+        <hr>
+
+        <!-- 2. Edit Status -->
+        <div class="section" id="editSection" style="display:none;">
+            <h3>Edit Status for: <span id="targetNameDisplay" style="color: blue;"></span></h3>
+            
+            <p>Modify the JSON object below. <br><strong>Note:</strong> Invalid JSON will be rejected.</p>
+            
+            <textarea id="statusJson" class="status-editor"></textarea>
+            
+            <div class="warning">
+                ⚠️ Changing 'admin' to true grants full system access.
+                <br>
+                ⚠️ Changing 'status' to anything other than 'ACTIVE' will lock the user out.
+            </div>
+
+            <div class="flex-container" style="margin-top: 15px;">
+                <button id="btnSaveStatus" style="background-color: #d9534f; color: white;">Update User Status</button>
+            </div>
+            <p id="saveResponse"></p>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html>
