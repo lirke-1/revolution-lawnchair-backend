@@ -22,9 +22,9 @@ touch .env
 **2. Add the following variables to `.env`:**
 ```env
 PORT=3000
-SESSION_TIME=10 #in minutes
+SESSION_TIME=10
 SESSION_SECRET=change_this_to_a_long_random_string
-DB_PATH=./database.sqlite (Optional, depending on your DB setup)
+DB_PATH=./database.sqlite
 ```
 ## Running the Server
 
@@ -72,13 +72,7 @@ cd ./revolution-lawnchair-backend
 docker build -t revolution .
 ```
 
-**3b. Set environment variables in .env file:**
-```bash
-touch .env
-echo "# Server Configuration\nPORT=3000\n\n# Security Secrets\nSESSION_SECRET=whatever_you_want\nSESSION_TIME=1 #in Minutes\n\n# Database Path\nDB_PATH=./database.db #REQUIRED" > .env
-```
-
-**4b. Run the container (Docker Run):**
+**3. Run the container (Docker Run):**
 Pass your `.env` file to the container to configure it at runtime:
 ```bash
 docker run -p 3000:3000 --env-file .env revolution
